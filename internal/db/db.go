@@ -121,7 +121,7 @@ func NewDB(dir, userID string) (*DB, bool, error) {
 		return nil, false, err
 	}
 
-	client, err := ent.Open(dialect.SQLite, getDatabaseConn(dir, userID, path))
+	client, err := ent.Open(dialect.SQLite, getDatabaseConn(dir, userID, path), ent.Debug())
 	if err != nil {
 		return nil, false, err
 	}

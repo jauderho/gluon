@@ -677,7 +677,7 @@ func (user *user) applyMessageUpdated(ctx context.Context, update *imap.MessageU
 					stateUpdates = append(stateUpdates, updates...)
 				}
 
-				if err := db.DeleteMessages(ctx, tx, internalMessageID); err != nil {
+				if err := db.MarkMessageAsDeleted(ctx, tx, internalMessageID); err != nil {
 					return err
 				}
 			}
@@ -699,8 +699,10 @@ func (user *user) applyMessageUpdated(ctx context.Context, update *imap.MessageU
 					InternalID:  newInternalID,
 				}
 
-				if _, err := db.CreateMessages(ctx, tx, request); err != nil {
+				if m, err := db.CreateMessages(ctx, tx, request); err != nil {
 					return err
+				} else if len(m) == 0 {
+					return fmt.Errorf("no messages where inserted")
 				}
 
 				if err := user.store.Set(newInternalID, literalReader); err != nil {
